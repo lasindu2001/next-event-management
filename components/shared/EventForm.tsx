@@ -17,12 +17,8 @@ import {
     FormMessage,
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
-
-const formSchema = z.object({
-    username: z.string().min(2, {
-        message: "Username must be at least 2 characters.",
-    }),
-})
+import { eventFormSchema } from "@/lib/validator"
+import { eventDefaultValues } from "@/constants"
 
 type EventFormProps = {
     userId: string
@@ -32,36 +28,34 @@ type EventFormProps = {
 }
 
 const EventForm = ({ userId, type, event, eventId }: EventFormProps) => {
-    const form = useForm<z.infer<typeof formSchema>>({
-        resolver: zodResolver(formSchema),
-        defaultValues: {
-            username: "",
-        },
+    const initialValues = eventDefaultValues
+
+    const form = useForm<z.infer<typeof eventFormSchema>>({
+        resolver: zodResolver(eventFormSchema),
+        defaultValues: initialValues
     })
 
-    function onSubmit(values: z.infer<typeof formSchema>) {
+    function onSubmit(values: z.infer<typeof eventFormSchema>) {
         console.log(values)
     }
 
     return (
         <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+            <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col gap-5">
+            <div className="flex flex-col gap-5 md:flex-row">
                 <FormField
                     control={form.control}
-                    name="username"
+                    name="title"
                     render={({ field }) => (
-                        <FormItem>
-                            <FormLabel>Username</FormLabel>
+                        <FormItem className="w-full">
                             <FormControl>
-                                <Input placeholder="shadcn" {...field} />
+                                <Input placeholder="Event title" {...field} className="input-field" />
                             </FormControl>
-                            <FormDescription>
-                                This is your public display name.
-                            </FormDescription>
                             <FormMessage />
                         </FormItem>
                     )}
                 />
+                </div>
                 <Button type="submit">Submit</Button>
             </form>
         </Form>
