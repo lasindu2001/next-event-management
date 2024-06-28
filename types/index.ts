@@ -33,6 +33,13 @@ export type CreateEventParams = {
     path: string
 }
 
+export type GetAllEventsParams = {
+    query: string
+    category: string
+    limit: number
+    page: number
+}
+
 // ====== CATEGORY PARAMS
 export type CreateCategoryParams = {
     categoryName: string
