@@ -6,7 +6,7 @@ import Category from "../database/models/category.model"
 import Event from "../database/models/event.model"
 import User from "../database/models/user.model"
 import { handleError } from "../utils"
-import { CreateEventParams, DeleteEventParams, GetAllEventsParams } from "@/types"
+import { CreateEventParams, DeleteEventParams, GetAllEventsParams, UpdateEventParams } from "@/types"
 
 const getCategoryByName = async (name: string) => {
     return Category.findOne({ name: { $regex: name, $options: 'i' } })
@@ -70,6 +70,26 @@ export async function getAllEvents({ query, limit = 6, page, category }: GetAllE
             data: JSON.parse(JSON.stringify(events)),
             totalPages: Math.ceil(eventsCount / limit),
         }
+    } catch (error) {
+        handleError(error)
+    }
+}
+
+// UPDATE
+export async function updateEvent({ userId, event, path }: UpdateEventParams) {
+    try {
+        await connectToDatabase()
+        const eventToUpdate = await Event.findById(event._id)
+        if (!eventToUpdate || eventToUpdate.organizer.toHexString() !== userId) {
+            throw new Error('Unauthorized or event not found')
+        }
+        const updatedEvent = await Event.findByIdAndUpdate(
+            event._id,
+            { ...event, category: event.categoryId },
+            { new: true }
+        )
+        revalidatePath(path)
+        return JSON.parse(JSON.stringify(updatedEvent))
     } catch (error) {
         handleError(error)
     }
