@@ -63,6 +63,13 @@ export type DeleteEventParams = {
     path: string
 }
 
+export type GetRelatedEventsByCategoryParams = {
+    categoryId: string
+    eventId: string
+    limit?: number
+    page: number | string
+}
+
 // ====== CATEGORY PARAMS
 export type CreateCategoryParams = {
     categoryName: string
