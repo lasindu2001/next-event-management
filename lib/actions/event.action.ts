@@ -6,7 +6,7 @@ import Category from "../database/models/category.model"
 import Event from "../database/models/event.model"
 import User from "../database/models/user.model"
 import { handleError } from "../utils"
-import { CreateEventParams, DeleteEventParams, GetAllEventsParams, GetRelatedEventsByCategoryParams, UpdateEventParams } from "@/types"
+import { CreateEventParams, DeleteEventParams, GetAllEventsParams, GetEventsByUserParams, GetRelatedEventsByCategoryParams, UpdateEventParams } from "@/types"
 
 const getCategoryByName = async (name: string) => {
     return Category.findOne({ name: { $regex: name, $options: 'i' } })
@@ -101,6 +101,24 @@ export async function deleteEvent({ eventId, path }: DeleteEventParams) {
         await connectToDatabase()
         const deletedEvent = await Event.findByIdAndDelete(eventId)
         if (deletedEvent) revalidatePath(path)
+    } catch (error) {
+        handleError(error)
+    }
+}
+
+// GET EVENTS BY ORGANIZER
+export async function getEventsByUser({ userId, limit = 6, page }: GetEventsByUserParams) {
+    try {
+        await connectToDatabase()
+        const conditions = { organizer: userId }
+        const skipAmount = (page - 1) * limit
+        const eventsQuery = Event.find(conditions)
+            .sort({ createdAt: 'desc' })
+            .skip(skipAmount)
+            .limit(limit)
+        const events = await populateEvent(eventsQuery)
+        const eventsCount = await Event.countDocuments(conditions)
+        return { data: JSON.parse(JSON.stringify(events)), totalPages: Math.ceil(eventsCount / limit) }
     } catch (error) {
         handleError(error)
     }

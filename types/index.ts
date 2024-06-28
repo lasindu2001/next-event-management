@@ -70,6 +70,12 @@ export type GetRelatedEventsByCategoryParams = {
     page: number | string
 }
 
+export type GetEventsByUserParams = {
+    userId: string
+    limit?: number
+    page: number
+}
+
 // ====== CATEGORY PARAMS
 export type CreateCategoryParams = {
     categoryName: string
