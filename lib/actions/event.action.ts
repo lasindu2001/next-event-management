@@ -6,7 +6,7 @@ import Category from "../database/models/category.model"
 import Event from "../database/models/event.model"
 import User from "../database/models/user.model"
 import { handleError } from "../utils"
-import { CreateEventParams, GetAllEventsParams } from "@/types"
+import { CreateEventParams, DeleteEventParams, GetAllEventsParams } from "@/types"
 
 const getCategoryByName = async (name: string) => {
     return Category.findOne({ name: { $regex: name, $options: 'i' } })
@@ -70,6 +70,17 @@ export async function getAllEvents({ query, limit = 6, page, category }: GetAllE
             data: JSON.parse(JSON.stringify(events)),
             totalPages: Math.ceil(eventsCount / limit),
         }
+    } catch (error) {
+        handleError(error)
+    }
+}
+
+// DELETE
+export async function deleteEvent({ eventId, path }: DeleteEventParams) {
+    try {
+        await connectToDatabase()
+        const deletedEvent = await Event.findByIdAndDelete(eventId)
+        if (deletedEvent) revalidatePath(path)
     } catch (error) {
         handleError(error)
     }
